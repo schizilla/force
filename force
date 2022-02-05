@@ -1,0 +1,141 @@
+local antimutegui = Instance.new("ScreenGui")
+local Main = Instance.new("Frame")
+local TextButton = Instance.new("TextButton")
+local TextButton_3 = Instance.new("TextButton")
+local TextButton_4 = Instance.new("TextButton")
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+
+antimutegui.Name = "antimute gui"
+antimutegui.Parent = game.CoreGui
+antimutegui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+Main.Name = "Main"
+Main.Parent = antimutegui
+Main.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Main.Position = UDim2.new(0.417797863, 0, 0.169249102, 0)
+Main.Size = UDim2.new(0, 342, 0, 293)
+
+TextButton.Parent = Main
+TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextButton.Size = UDim2.new(0, 200, 0, 50)
+TextButton.Font = Enum.Font.SourceSans
+TextButton.Text = "antimute1 on"
+TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextButton.TextSize = 14.000
+
+TextButton.MouseButton1Down:connect(
+    function()
+        _G.AntiMute = true
+        while _G.AntiMute do
+            for _, v in pairs(Character:GetDescendants()) do
+                if v:IsA("Tool") then
+                    local Handle = v:WaitForChild("Handle")
+                    local Sound = Handle:FindFirstChildOfClass("Sound")
+                    repeat
+                        if Sound.Playing then
+                            TimePosition = Sound.TimePosition
+                        end
+                        if not Sound.Playing then
+                            Sound.TimePosition = TimePosition
+                            Sound:Play()
+                        end
+                        game:GetService("RunService").Heartbeat:Wait()
+                    until _G.AntiMute == false
+                end
+            end
+        end
+    end
+)
+
+TextButton_3.Parent = Main
+TextButton_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextButton_3.Position = UDim2.new(0.853801191, 0, 0, 0)
+TextButton_3.Size = UDim2.new(0, 50, 0, 50)
+TextButton_3.Font = Enum.Font.SourceSans
+TextButton_3.Text = "X"
+TextButton_3.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextButton_3.TextSize = 14.000
+
+TextButton_3.MouseButton1Down:connect(
+    function()
+        antimutegui:Destroy()
+    end
+)
+
+TextButton_4.Parent = Main
+TextButton_4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextButton_4.Position = UDim2.new(0.207602337, 0, 0.829351544, 0)
+TextButton_4.Size = UDim2.new(0, 200, 0, 50)
+TextButton_4.Font = Enum.Font.SourceSans
+TextButton_4.Text = "antimute off"
+TextButton_4.TextColor3 = Color3.fromRGB(0, 0, 0)
+TextButton_4.TextSize = 14.000
+
+TextButton_4.MouseButton1Down:connect(
+    function()
+        _G.AntiMute = false
+    end
+)
+
+local function DragScript()
+    local script = Instance.new("LocalScript", Main)
+
+    local UIS = game:GetService("UserInputService")
+    function draggable(Main)
+        dragToggle = nil
+        local dragSpeed = 3
+        dragInput = nil
+        dragStart = nil
+        local dragPos = nil
+        function updateInput(input)
+            local Delta = input.Position - dragStart
+            local Position =
+                UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
+            game:GetService("TweenService"):Create(Main, TweenInfo.new(0.25), {Position = Position}):Play()
+        end
+
+        Main.InputBegan:Connect(
+            function(input)
+                if
+                    (input.UserInputType == Enum.UserInputType.MouseButton1 or
+                        input.UserInputType == Enum.UserInputType.Touch) and
+                        UIS:GetFocusedTextBox() == nil
+                 then
+                    dragToggle = true
+                    dragStart = input.Position
+                    startPos = Main.Position
+                    input.Changed:Connect(
+                        function()
+                            if input.UserInputState == Enum.UserInputState.End then
+                                dragToggle = false
+                            end
+                        end
+                    )
+                end
+            end
+        )
+
+        Main.InputChanged:Connect(
+            function(input)
+                if
+                    input.UserInputType == Enum.UserInputType.MouseMovement or
+                        input.UserInputType == Enum.UserInputType.Touch
+                 then
+                    dragInput = input
+                end
+            end
+        )
+        game:GetService("UserInputService").InputChanged:Connect(
+            function(input)
+                if input == dragInput and dragToggle then
+                    updateInput(input)
+                end
+            end
+        )
+    end
+    draggable(script.Parent)
+end
+
+coroutine.wrap(DragScript)()
